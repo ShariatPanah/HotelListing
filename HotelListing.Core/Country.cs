@@ -15,5 +15,8 @@ namespace HotelListing.Core
         [Required(ErrorMessage = "نام خلاصه کشور را وارد کنید.")]
         [StringLength(maximumLength: 10)]
         public string ShortName { get; set; }
+
+        //[StringLength(maximumLength: 5)]
+        //public string ZipCode { get; set; }
     }
 }

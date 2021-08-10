@@ -3,14 +3,16 @@ using HotelListing.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HotelListing.Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210810114358_ZipCodeRemoved")]
+    partial class ZipCodeRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,26 +40,6 @@ namespace HotelListing.Core.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Countries");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Jamaica",
-                            ShortName = "JM"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Bahamas",
-                            ShortName = "BS"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Cayman Island",
-                            ShortName = "CI"
-                        });
                 });
 
             modelBuilder.Entity("HotelListing.Core.Hotel", b =>
@@ -88,32 +70,6 @@ namespace HotelListing.Core.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("Hotels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "Negril",
-                            CountryId = 1,
-                            Name = "Sandals Resort and Spa",
-                            Rating = 4.5
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "Goerge Town",
-                            CountryId = 3,
-                            Name = "Comfort Suites",
-                            Rating = 4.2999999999999998
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Address = "Nassua",
-                            CountryId = 2,
-                            Name = "Grand Palldium",
-                            Rating = 4.0
-                        });
                 });
 
             modelBuilder.Entity("HotelListing.Core.Hotel", b =>
