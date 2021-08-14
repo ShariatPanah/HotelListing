@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HotelListing.Core
+namespace HotelListing.Data
 {
     public class Hotel
     {

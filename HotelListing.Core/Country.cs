@@ -1,10 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HotelListing.Core
+namespace HotelListing.Data
 {
     public class Country
     {
+        public Country()
+        {
+            Hotels = new List<Hotel>();
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
@@ -18,5 +24,7 @@ namespace HotelListing.Core
 
         //[StringLength(maximumLength: 5)]
         //public string ZipCode { get; set; }
+
+        public virtual IList<Hotel> Hotels { get; set; }
     }
 }

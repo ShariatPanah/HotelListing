@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace HotelListing.Core
+namespace HotelListing.Data
 {
     public class ApplicationDbContext : DbContext
     {
