@@ -130,15 +130,15 @@ namespace HotelListing.Data.Repositories
             return _dbset.AsEnumerable();
         }
 
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await _dbset.ToListAsync();
+        }
+
         public IQueryable<TEntity> GetAllAsQueryable()
         {
             return _dbset.AsQueryable();
         }
-
-        //public async Task<IAsyncEnumerable<TEntity>> GetAllAsync()
-        //{
-        //    return _dbset.AsAsyncEnumerable();
-        //}
 
         public IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includeProperties)
         {

@@ -1,4 +1,5 @@
-using HotelListing.Data;
+﻿using HotelListing.Data;
+using HotelListing.Data.UnitOfWork;
 using HotelListing.Dtos.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +30,12 @@ namespace HotelListing
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                // این خط کد برای این لازمه چون چرخه روابط بین کلاس هارو ایگنور میکنه
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
+
             services.AddCors(cors =>
             {
                 cors.AddPolicy("AllowAll",
@@ -38,6 +44,7 @@ namespace HotelListing
                             .AllowAnyHeader());
             });
 
+            services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddAutoMapper(typeof(MapperInitializer));
 
             services.AddSwaggerGen(c =>

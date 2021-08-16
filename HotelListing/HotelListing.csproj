@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.9" />
     <PackageReference Include="microsoft.entityframeworkcore" Version="5.0.8" />
     <PackageReference Include="microsoft.entityframeworkcore.design" Version="5.0.8">
       <PrivateAssets>all</PrivateAssets>

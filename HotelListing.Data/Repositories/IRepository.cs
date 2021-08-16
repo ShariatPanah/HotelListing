@@ -23,6 +23,7 @@ namespace HotelListing.Data.Repositories
         TEntity Find(params object[] keyValues);
         Task<TEntity> FindAsync(params object[] keyValues);
         IEnumerable<TEntity> GetAll();
+        Task<IEnumerable<TEntity>> GetAllAsync();
         IQueryable<TEntity> GetAllAsQueryable();
 
         TEntity FirstOrDefault();
