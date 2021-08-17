@@ -36,6 +36,14 @@ namespace HotelListing
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
 
+            services.AddDbContextPool<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("HotelListing"));
+            });
+
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+
             services.AddCors(cors =>
             {
                 cors.AddPolicy("AllowAll",
@@ -50,11 +58,6 @@ namespace HotelListing
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelListing", Version = "v1" });
-            });
-
-            services.AddDbContextPool<ApplicationDbContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("HotelListing"));
             });
         }
 
