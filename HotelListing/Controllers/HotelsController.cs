@@ -14,13 +14,13 @@ namespace HotelListing.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CountriesController : ControllerBase
+    public class HotelsController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<CountriesController> _logger;
+        private readonly ILogger<HotelsController> _logger;
         private readonly IMapper _mapper;
 
-        public CountriesController(IUnitOfWork unitOfWork, ILogger<CountriesController> logger, IMapper mapper)
+        public HotelsController(IUnitOfWork unitOfWork, ILogger<HotelsController> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -28,36 +28,36 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCountries()
+        public async Task<IActionResult> GetHotels()
         {
             try
             {
-                var countries = await _unitOfWork.Countries.GetAllAsync();
-                var dtos = _mapper.Map<IList<CountryDto>>(countries);
+                var hotels = await _unitOfWork.Hotels.GetAllAsync();
+                var dtos = _mapper.Map<IList<HotelDto>>(hotels);
                 return Ok(dtos);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error Occured in method: {nameof(GetCountries)}");
+                _logger.LogError(ex, $"Error Occured in method: {nameof(GetHotels)}");
                 return StatusCode(500, "Something went wrong, Please try again later!");
             }
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetCountry(int id)
+        public async Task<IActionResult> GetHotel(int id)
         {
             try
             {
-                var country = await _unitOfWork.Countries.Include(c => c.Hotels).FirstOrDefaultAsync(c => c.Id == id);
-                if (country == null)
+                var hotel = await _unitOfWork.Hotels.Include(h => h.Country).FirstOrDefaultAsync(h => h.Id == id);
+                if (hotel == null)
                     return NotFound();
 
-                var dto = _mapper.Map<CountryDto>(country);
+                var dto = _mapper.Map<HotelDto>(hotel);
                 return Ok(dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error Occured in method: {nameof(GetCountry)}");
+                _logger.LogError(ex, $"Error Occured in method: {nameof(GetHotel)}");
                 return StatusCode(500, "Something went wrong, Please try again later!");
             }
         }
