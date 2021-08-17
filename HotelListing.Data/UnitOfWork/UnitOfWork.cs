@@ -1,4 +1,5 @@
-﻿using HotelListing.Data.Repositories;
+﻿using HotelListing.Core;
+using HotelListing.Data.Repositories;
 using System.Threading.Tasks;
 
 namespace HotelListing.Data.UnitOfWork

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HotelListing.Data;
+using HotelListing.Core;
 
 namespace HotelListing.Dtos.Configurations
 {
@@ -12,6 +12,8 @@ namespace HotelListing.Dtos.Configurations
 
             CreateMap<Hotel, HotelDto>().ReverseMap();
             CreateMap<Hotel, CreateHotelDto>().ReverseMap();
+
+            CreateMap<AppUser, AppUserDto>().ReverseMap();
         }
     }
 }

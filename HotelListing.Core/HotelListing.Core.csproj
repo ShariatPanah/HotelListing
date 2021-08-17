@@ -8,4 +8,8 @@
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HotelListing.Common\HotelListing.Common.csproj" />
+  </ItemGroup>
+
 </Project>
