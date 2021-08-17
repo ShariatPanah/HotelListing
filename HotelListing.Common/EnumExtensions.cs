@@ -4,7 +4,7 @@ namespace HotelListing.Common
 {
     public static class EnumExtensions
     {
-        public static int ToInt<T>(this T value) where T: IConvertible //enum
+        public static int ToInt<T>(this T value) where T : IConvertible //enum
         {
             if (!typeof(T).IsEnum)
                 throw new ArgumentException("T must be an enum type.");
