@@ -1,10 +1,13 @@
-﻿using HotelListing.Data;
+﻿using HotelListing.Common;
+using HotelListing.Data;
 using HotelListing.Data.UnitOfWork;
 using HotelListing.Dtos.Configurations;
+using HotelListing.Services.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,17 +23,28 @@ namespace HotelListing
 {
     public class Startup
     {
+        private readonly SiteSettings _siteSettings;
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }
 
-        public IConfiguration Configuration { get; }
+            _siteSettings = configuration.GetSection(nameof(SiteSettings)).Get<SiteSettings>();
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(options =>
+            services.Configure<SiteSettings>(Configuration.GetSection(nameof(SiteSettings)));
+
+            services.AddControllers(options =>
+            {
+                // بصورت پیشفرض تمامی کنترلرها و اکشن ها نیاز به احراز هوییت خواهند داشت
+                // مگر اینکه خلافش ثابت بشه از طریق اتریبیوت AllowAnnonymous
+                // حالا روی هر اکشن هم میتونیم اتریبیوت اوتورایز رو اعمال کنیم با رول های موردنظرمون
+                options.Filters.Add(new AuthorizeFilter());
+            }).AddNewtonsoftJson(options =>
             {
                 // این خط کد برای این لازمه چون چرخه روابط بین کلاس هارو ایگنور میکنه
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -41,7 +55,8 @@ namespace HotelListing
                 options.UseSqlServer(Configuration.GetConnectionString("HotelListing"));
             });
 
-            services.AddAuthentication();
+            //services.AddAuthentication();
+            services.AddJwtAuthentication(_siteSettings.JwtSettings);
             services.ConfigureIdentity();
 
             services.AddCors(cors =>
@@ -53,6 +68,7 @@ namespace HotelListing
             });
 
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+            services.AddScoped(typeof(IJwtService), typeof(JwtService));
             services.AddAutoMapper(typeof(MapperInitializer));
 
             services.AddSwaggerGen(c =>
@@ -78,6 +94,7 @@ namespace HotelListing
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
