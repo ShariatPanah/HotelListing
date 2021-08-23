@@ -2,7 +2,6 @@
 using HotelListing.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -34,7 +33,8 @@ namespace HotelListing.Data
                 })
                 .AddJwtBearer(options =>
                 {
-                    var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+                    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)); // should be equal or longer than 16 chars
+                    var encryptKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.EncryptKey));
 
                     var validationParams = new TokenValidationParameters
                     {
@@ -42,7 +42,7 @@ namespace HotelListing.Data
                         RequireSignedTokens = true,
 
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                        IssuerSigningKey = securityKey,
 
                         RequireExpirationTime = true,
                         ValidateLifetime = true,
@@ -53,7 +53,7 @@ namespace HotelListing.Data
                         ValidateIssuer = true, // default: false
                         ValidIssuer = jwtSettings.Issuer,
 
-                        //TokenDecryptionKey = new SymmetricSecurityKey(encryptionKey)
+                        TokenDecryptionKey = encryptKey
                     };
 
                     options.TokenValidationParameters = validationParams;

@@ -26,8 +26,12 @@ namespace HotelListing.Services.Jwt
 
         public async Task<string> Generate(AppUser user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_siteSettings.JwtSettings.SecretKey));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_siteSettings.JwtSettings.SecretKey)); // should be equal or longer than 16 chars
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            var encryptionKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_siteSettings.JwtSettings.EncryptKey)); // should be 16 chars exactly
+            var encryptingCredentials = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes128KW, SecurityAlgorithms.Aes128CbcHmacSha256);
+
             var claims = await GetClaims(user);
 
             var descriptor = new SecurityTokenDescriptor
@@ -38,6 +42,7 @@ namespace HotelListing.Services.Jwt
                 NotBefore = DateTime.Now.AddMinutes(_siteSettings.JwtSettings.NotBeforeInMinutes), // این یعنی توکنی که تولید کردیم از لحظه تولید تا قبل از پنج دقیقه قابل استفاده نیست و بعد از پنج دقیقه معتبر و قابل استفاده خواهد بود
                 Expires = DateTime.Now.AddDays(_siteSettings.JwtSettings.ExpirationInDays),
                 SigningCredentials = signingCredentials,
+                EncryptingCredentials = encryptingCredentials,
                 Claims = claims,
             };
 
