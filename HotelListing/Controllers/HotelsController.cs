@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HotelListing.Data.UnitOfWork;
 using HotelListing.Dtos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +30,7 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetHotels()
         {
             try

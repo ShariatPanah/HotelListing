@@ -18,8 +18,4 @@
     <ProjectReference Include="..\HotelListing.Core\HotelListing.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

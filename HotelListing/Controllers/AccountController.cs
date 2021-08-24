@@ -76,7 +76,9 @@ namespace HotelListing.Controllers
                 if (user == null || !await _userManager.CheckPasswordAsync(user, userDto.Password))
                     return BadRequest("Username or Password is incorrect.");
 
-                return Ok(new { Token = await _jwtService.Generate(user) });
+                //var result = await _userManager.UpdateSecurityStampAsync(user);
+
+                return Ok(new { Token = await _jwtService.GenerateAsync(user) });
             }
             catch (Exception ex)
             {

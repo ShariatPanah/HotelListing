@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HotelListing.Data
 {
@@ -13,14 +16,21 @@ namespace HotelListing.Data
     {
         public static void ConfigureIdentity(this IServiceCollection services)
         {
-            var builder = services.AddIdentityCore<AppUser>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-                options.Password.RequiredLength = 6;
-            });
+            services.AddIdentity<AppUser, IdentityRole>(options =>
+                {
+                    options.User.RequireUniqueEmail = true;
+                    options.Password.RequiredLength = 6;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+            //var builder = services.AddIdentityCore<AppUser>(options =>
+            //{
+            //    options.User.RequireUniqueEmail = true;
+            //    options.Password.RequiredLength = 6;
+            //});
 
-            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
-            builder.AddEntityFrameworkStores<ApplicationDbContext>();
+            //builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
+            //builder.AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
         public static void AddJwtAuthentication(this IServiceCollection services, JwtSettings jwtSettings)
@@ -59,6 +69,48 @@ namespace HotelListing.Data
                     options.TokenValidationParameters = validationParams;
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            //var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(JwtBearerEvents));
+                            //logger.LogError("Authentication failed.", context.Exception);
+
+                            if (context.Exception != null)
+                                throw context.Exception;
+
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = async context =>
+                        {
+                            var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<AppUser>>();
+                            //var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<AppUser>>();
+
+                            var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                            if ((bool)!claimsIdentity.Claims?.Any())
+                                context.Fail("This token has no claims!");
+
+                            var stct = new ClaimsIdentityOptions().SecurityStampClaimType;
+                            var securityStampInToken = claimsIdentity.FindFirst(c => c.Type == stct);
+                            if (securityStampInToken == null)
+                                context.Fail("This token has no Security Stamp!");
+
+                            var validatedUser = await signInManager.ValidateSecurityStampAsync(context.Principal);
+                            if (validatedUser == null)
+                                context.Fail("Token security stamp is not valid.");
+                        },
+                        OnChallenge = context =>
+                        {
+                            //var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(JwtBearerEvents));
+                            //logger.LogError("OnChallenge error", context.Error, context.ErrorDescription);
+
+                            if (context.AuthenticateFailure != null)
+                                throw context.AuthenticateFailure;
+
+                            throw new UnauthorizedAccessException();
+                        }
+                    };
                 });
         }
     }

@@ -43,7 +43,7 @@ namespace HotelListing
                 // بصورت پیشفرض تمامی کنترلرها و اکشن ها نیاز به احراز هوییت خواهند داشت
                 // مگر اینکه خلافش ثابت بشه از طریق اتریبیوت AllowAnnonymous
                 // حالا روی هر اکشن هم میتونیم اتریبیوت اوتورایز رو اعمال کنیم با رول های موردنظرمون
-                options.Filters.Add(new AuthorizeFilter());
+                //options.Filters.Add(new AuthorizeFilter());
             }).AddNewtonsoftJson(options =>
             {
                 // این خط کد برای این لازمه چون چرخه روابط بین کلاس هارو ایگنور میکنه
@@ -55,9 +55,8 @@ namespace HotelListing
                 options.UseSqlServer(Configuration.GetConnectionString("HotelListing"));
             });
 
-            //services.AddAuthentication();
-            services.AddJwtAuthentication(_siteSettings.JwtSettings);
             services.ConfigureIdentity();
+            services.AddJwtAuthentication(_siteSettings.JwtSettings);
 
             services.AddCors(cors =>
             {

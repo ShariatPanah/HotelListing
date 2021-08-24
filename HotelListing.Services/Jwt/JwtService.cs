@@ -15,16 +15,16 @@ namespace HotelListing.Services.Jwt
 {
     public class JwtService : IJwtService
     {
-        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly SiteSettings _siteSettings;
 
-        public JwtService(UserManager<AppUser> userManager, IOptionsSnapshot<SiteSettings> siteSettings)
+        public JwtService(SignInManager<AppUser> signInManager, IOptionsSnapshot<SiteSettings> siteSettings)
         {
-            _userManager = userManager;
+            _signInManager = signInManager;
             _siteSettings = siteSettings.Value;
         }
 
-        public async Task<string> Generate(AppUser user)
+        public async Task<string> GenerateAsync(AppUser user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_siteSettings.JwtSettings.SecretKey)); // should be equal or longer than 16 chars
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
@@ -32,7 +32,7 @@ namespace HotelListing.Services.Jwt
             var encryptionKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_siteSettings.JwtSettings.EncryptKey)); // should be 16 chars exactly
             var encryptingCredentials = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes128KW, SecurityAlgorithms.Aes128CbcHmacSha256);
 
-            var claims = await GetClaims(user);
+            var claims = await GetClaimsAsync(user);
 
             var descriptor = new SecurityTokenDescriptor
             {
@@ -43,7 +43,9 @@ namespace HotelListing.Services.Jwt
                 Expires = DateTime.Now.AddDays(_siteSettings.JwtSettings.ExpirationInDays),
                 SigningCredentials = signingCredentials,
                 EncryptingCredentials = encryptingCredentials,
-                Claims = claims,
+
+                //Claims = claims,
+                Subject = new ClaimsIdentity(claims)
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -53,23 +55,45 @@ namespace HotelListing.Services.Jwt
             return jwtToken;
         }
 
-        private async Task<IDictionary<string, object>> GetClaims(AppUser user)
+        private async Task<IEnumerable<Claim>> GetClaimsAsync(AppUser user)
         {
-            //JwtRegisteredClaimNames.Email; // میتونی از این تایپ ها هم استفاده کنی به جای کلیم تایپس
-            var dictionary = new Dictionary<string, object>
-            {
-                { ClaimTypes.Name, user.UserName },
-                { ClaimTypes.NameIdentifier, user.Id },
-                { ClaimTypes.MobilePhone, user.PhoneNumber }
-            };
+            var result = await _signInManager.ClaimsFactory.CreateAsync(user);
+            var claimsList = new List<Claim>(result.Claims);
+            claimsList.Add(new Claim(ClaimTypes.MobilePhone, user.PhoneNumber));
+            claimsList.Add(new Claim(ClaimTypes.Role, "Admin"));
 
-            var roles = await _userManager.GetRolesAsync(user);
-            foreach (var role in roles)
-            {
-                dictionary.Add(ClaimTypes.Role, role);
-            }
+            return claimsList;
 
-            return dictionary;
+            //var dictionary = new Dictionary<string, object>();
+            //foreach (var claim in result.Claims)
+            //{
+            //    dictionary.Add(claim.Type, claim.Value);
+            //}
+
+            //dictionary.Add(ClaimTypes.MobilePhone, user.PhoneNumber);
+            //dictionary.Add(ClaimTypes.Role, "Admin");
+            ////dictionary.Add(ClaimTypes.Role, "User");
+
+            //return dictionary;
+
+            ////JwtRegisteredClaimNames.Email; // میتونی از این تایپ ها هم استفاده کنی به جای کلیم تایپس
+            //var securityClaimType = new ClaimsIdentityOptions().SecurityStampClaimType;
+
+            //var dictionary = new Dictionary<string, object>
+            //{
+            //    { ClaimTypes.Name, user.UserName },
+            //    { ClaimTypes.NameIdentifier, user.Id },
+            //    { ClaimTypes.MobilePhone, user.PhoneNumber },
+            //    { securityClaimType, user.SecurityStamp }
+            //};
+
+            //var roles = await _userManager.GetRolesAsync(user);
+            //foreach (var role in roles)
+            //{
+            //    dictionary.Add(ClaimTypes.Role, role);
+            //}
+
+            //return dictionary;
         }
     }
 }

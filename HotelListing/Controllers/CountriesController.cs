@@ -29,7 +29,7 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetCountries()
         {
             try
@@ -46,6 +46,7 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCountry(int id)
         {
             try
